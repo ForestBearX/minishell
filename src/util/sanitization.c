@@ -1,0 +1,114 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   sanitization.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mikkhach <mikkhach@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/02 15:48:52 by mikkhach          #+#    #+#             */
+/*   Updated: 2025/02/02 15:48:54 by mikkhach         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include <minishell.h>
+
+void	free_ptr(void *ptr)
+{
+	if (ptr)
+	{
+		free(ptr);
+		ptr = NULL;
+	}
+}
+
+void	free_data(t_data *data, bool exit_shell)
+{
+	if (data)
+	{
+		if (data->user_input)
+			free_ptr(data->user_input);
+		if (exit_shell)
+		{
+			if (data->old_work_dir)
+				free_ptr(data->old_work_dir);
+			if (data->work_dir)
+				free_ptr(data->work_dir);
+			if (data->env)
+				free_array_str(data->env);
+			rl_clear_history();
+		}
+	}
+}
+
+void	free_array_str(char **arr_str)
+{
+	int	i;
+
+	i = 0;
+	if (arr_str)
+	{
+		while (arr_str[i])
+		{
+			if (arr_str[i])
+			{
+				free_ptr(arr_str[i]);
+				arr_str[i] = NULL;
+			}
+			i++;
+		}
+		free(arr_str);
+		arr_str = NULL;
+	}
+}
+
+static void	free_cmd(t_commands *cmds)
+{
+	int	i;
+	int	o;
+
+	i = 0;
+	while (i < cmds->num_exec)
+	{
+		o = 0;
+		while (cmds->cmd[i].args[o] != NULL)
+			free(cmds->cmd[i].args[o++]);
+		free(cmds->cmd[i].args[o]);
+		free(cmds->cmd[i].args);
+		o = 0;
+		while (cmds->cmd[i].redirections[o] != NULL)
+			free(cmds->cmd[i].redirections[o++]);
+		free(cmds->cmd[i].redirections[o]);
+		free(cmds->cmd[i].redirections);
+		free(cmds->cmd[i].path);
+		i++;
+	}
+	free_io(cmds->io);
+	free(cmds->cmd);
+}
+
+void	free_cmds(t_commands *cmds)
+{
+	int	i;
+
+	i = 0;
+	if (cmds->cmds != NULL)
+	{
+		free_cmd(cmds);
+		free_pipes(cmds);
+		while (cmds->cmds[i] != NULL)
+			free(cmds->cmds[i++]);
+		free(cmds->cmds[i]);
+		free(cmds->cmds);
+		i = 0;
+		if (cmds->paths != NULL)
+		{
+			while (cmds->paths[i] != NULL)
+				free(cmds->paths[i++]);
+			free(cmds->paths[i]);
+		}
+		free(cmds->paths);
+		free(cmds->operators);
+		free(cmds->pid);
+	}
+	free(cmds);
+}

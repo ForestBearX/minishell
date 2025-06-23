@@ -1,0 +1,42 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   handle_lexer_errors.c                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mikkhach <mikkhach@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/02 15:11:41 by mikkhach          #+#    #+#             */
+/*   Updated: 2025/02/02 15:11:41 by mikkhach         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include <minishell.h>
+
+void	lexer_errors(t_index_data *i_data, const char *s, t_commands *cmds)
+{
+	if (!s[i_data->i] && (s[i_data->i - 1] == '|' || s[i_data->i - 1] == '&'))
+	{
+		cmds->exit_value = error_msg_cmd(NULL, NULL, \
+		"-minishell: syntax error not expecting newline", 2);
+	}
+	while (s[i_data->i] && (s[i_data->i] == '|' || s[i_data->i] == '&' \
+		|| s[i_data->i] == ' '))
+	{
+		if ((s[i_data->i] == '|' || s[i_data->i] == '&') && cmds->exit_value \
+		== 0)
+		{
+			cmds->exit_value = 2;
+			ft_putstr_fd("-minishell: syntax error near unexpected token `", \
+			STDERR);
+			while (s[i_data->i] && (s[i_data->i] == '|' || s[i_data->i] == '&'))
+				ft_putchar_fd(s[i_data->i++], STDERR);
+			ft_putstr_fd("'\n", STDERR);
+		}
+		i_data->i++;
+		if (!s[i_data->i] && cmds->exit_value == 0)
+		{
+			cmds->exit_value = error_msg_cmd(NULL, NULL, \
+				"-minishell: syntax error not expecting newline", 2);
+		}
+	}
+}

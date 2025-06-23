@@ -1,0 +1,27 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_memchr.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mikkhach <mikkhach@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/02 15:06:19 by mikkhach          #+#    #+#             */
+/*   Updated: 2025/02/02 15:18:55 by mikkhach         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "libft.h"
+
+void	*ft_memchr(const void *str, int val, size_t len)
+{
+	size_t	i;
+
+	i = 0;
+	while (i < len)
+	{
+		if (((unsigned char *)str)[i] == (unsigned char)val)
+			return ((void *)(str + i));
+		i++;
+	}
+	return (NULL);
+}
